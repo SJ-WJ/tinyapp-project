@@ -1,3 +1,4 @@
+// Create web server with express
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -15,6 +16,12 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+// Add route representing the entire urlDatabase object
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+//Sending HTML
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
