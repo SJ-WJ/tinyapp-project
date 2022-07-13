@@ -28,8 +28,14 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// Route for /urls
+// Route for /urls, renders to urls_index.ejs
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+// Route for /urls/:id, renders to  urls_show.ejs
+app.get("/urls/:id", (req, res) => {
+  const templateVars = { id: req.params.id, longURL: req.params.longURL };
+  res.render("urls_show", templateVars);
 });
