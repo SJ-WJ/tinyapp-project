@@ -4,10 +4,21 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs"); // express now using EJS as its templating engine
+app.use(express.urlencoded({ extended: true}));
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+const generateRandomString = () => {
+  const list = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let randomizedId = "";
+  for (let generate of list) {
+    generate = Math.floor(Math.random() * list.length);
+    randomizedId += list.charAt(generate);
+  }
+  return randomizedId;
 };
 
 app.get("/", (req, res) => {
@@ -32,6 +43,16 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+app.post("/urls", (req, res) => {
+  console.log("req.body", req.body);
+  res.send("Ok");
+});
+
+// Route for /urls/new, renders to urls_new.ejs
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
 });
 
 // Route for /urls/:id, renders to  urls_show.ejs
