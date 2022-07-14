@@ -26,6 +26,7 @@ const users = {
   },
 };
 
+// Helper Function - Generate random ID
 const generateRandomString = () => {
   const list = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let randomizedId = "";
@@ -34,6 +35,16 @@ const generateRandomString = () => {
     randomizedId += list.charAt(generate);
   }
   return randomizedId;
+};
+
+// Helper Function - Determine if email exists
+const getUserByEmail = function(users, email) {
+  for (let user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+  return false;
 };
 
 // Route for /urls, renders to urls_index.ejs
@@ -83,15 +94,29 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 // Login
+app.get("/login", (req, res) => {
+  const templateVars = {user: users[req.cookies["user_id"]]};
+  res.render("login_page", templateVars);
+})
+
 app.post("/login", (req, res) => {
-  const userName = req.body.username;
-  res.cookie('username', userName);
+  const {email, password} = req.body;
+  if (!email || !password) {
+    return res.status(403).send("Missing email and/or password");
+  }
+
+  const user = getUserByEmail(users, email);
+  if (!user) {
+    return res.status(403).send("Invalid credentials");
+  }
+
+  res.cookie('user_id', users.id);
   res.redirect("/urls")
 });
 
 // Logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -102,17 +127,24 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  const id = generateRandomString();
+  const {email, password} = req.body;
+  if (email === "" || password === "") {
+    return res.status(400).send("Email or Password is empty");
+  }
+  
+  const emailExists = getUserByEmail(users, email);
+  if (emailExists) {
+    return res.status(400).send("An account with this email already exists");
+  }
 
+  const id = generateRandomString();
   users[id] = {
     id: id,
     email: email,
     password: password
   }
 
-  res.cookie('user_id', id);
+  res.cookie('user_id', users.id);
   res.redirect("/urls");
 });
 
