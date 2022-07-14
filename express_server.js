@@ -1,6 +1,8 @@
 // Create web server with express
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
+app.use(cookieParser())
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs"); // express now using EJS as its templating engine
@@ -10,7 +12,6 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-
 
 const generateRandomString = () => {
   const list = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -39,7 +40,7 @@ app.get("/hello", (req, res) => {
 
 // Route for /urls, renders to urls_index.ejs
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", templateVars);
 });
 
@@ -64,7 +65,6 @@ app.get("/urls/:id", (req, res) => {
 // Redirecting the generated shortUrl to it's corresponsding longUrl
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase.shortURL;
-  console.log("longURL", req.body.longURL);
   res.redirect(longURL);
 });
 
@@ -76,6 +76,18 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+// Login
+app.post("/login", (req, res) => {
+  const userName = req.body.username;
+  res.cookie('username', userName);
+  res.redirect("/urls")
+});
+
+// Logout
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
+});
 
 // Set up an event handler to show that we are listening
 app.listen(PORT, () => {
