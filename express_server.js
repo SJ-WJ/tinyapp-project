@@ -15,8 +15,8 @@ const urlDatabase = {
 const generateRandomString = () => {
   const list = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let randomizedId = "";
-  for (let generate of list) {
-    generate = Math.floor(Math.random() * list.length);
+  for (let i = 0; i < 6; i++) {
+    let generate = Math.floor(Math.random() * list.length);
     randomizedId += list.charAt(generate);
   }
   return randomizedId;
@@ -57,16 +57,25 @@ app.get("/urls/new", (req, res) => {
 
 // Route for /urls/:id, renders to  urls_show.ejs
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: req.params.longURL };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
 // Redirecting the generated shortUrl to it's corresponsding longUrl
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase.shortUrl;
+  const longURL = urlDatabase.shortURL;
   console.log("longURL", req.body.longURL);
   res.redirect(longURL);
 });
+
+// Deleting Urls
+app.post("/urls/:id/delete", (req, res) => {
+  let shortURL = req.params.id;
+  console.log("delete", shortURL)
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
+});
+
 
 // Set up an event handler to show that we are listening
 app.listen(PORT, () => {
