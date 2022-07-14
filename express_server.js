@@ -22,21 +22,6 @@ const generateRandomString = () => {
   return randomizedId;
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-
-// Add route representing the entire urlDatabase object
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-//Sending HTML
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 // Route for /urls, renders to urls_index.ejs
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
@@ -76,6 +61,13 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+// Editing Urls
+app.post("/urls/:id", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.updatedlongURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect("/urls");
+});
 
 // Set up an event handler to show that we are listening
 app.listen(PORT, () => {
