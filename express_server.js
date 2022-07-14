@@ -11,6 +11,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+
 const generateRandomString = () => {
   const list = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let randomizedId = "";
@@ -25,9 +26,6 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
 
 // Add route representing the entire urlDatabase object
 app.get("/urls.json", (req, res) => {
@@ -46,8 +44,10 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log("req.body", req.body);
-  res.send("Ok");
+  // Saving key-value pairs to the urlDatabase
+  let id = generateRandomString();
+  urlDatabase[id] = req.body.longURL;
+  res.redirect(`/urls/:${[id]}`);
 });
 
 // Route for /urls/new, renders to urls_new.ejs
@@ -59,4 +59,16 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: req.params.longURL };
   res.render("urls_show", templateVars);
+});
+
+// Redirecting the generated shortUrl to it's corresponsding longUrl
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase.shortUrl;
+  console.log("longURL", req.body.longURL);
+  res.redirect(longURL);
+});
+
+// Set up an event handler to show that we are listening
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
 });
