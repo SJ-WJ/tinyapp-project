@@ -89,12 +89,15 @@ app.post("/logout", (req, res) => {
 
 // Route for /urls, renders to urls_index.ejs
 app.get("/urls", (req, res) => {
-  const userID = req.session.user_id;
-  const user = users[userID];
-  
-  let urls = urlsForUser(urlDatabase, userID);
-  const templateVars = {urls, user};
+  let templateVars ={ urls: null, user: null };
 
+  if (req.session) {
+    const userID = req.session.user_id;
+    const user = users[userID];
+    
+    let urls = urlsForUser(urlDatabase, userID);
+    templateVars = {urls, user};
+  }
   res.render("urls_index", templateVars);
 });
 
@@ -130,14 +133,20 @@ app.get("/urls/:id", (req, res) => {
     user
   };
   res.render("urls_show", templateVars);
+
 });
 
 // Editing longURL
 app.post("/urls/:id", (req, res) => {
-  const shortURL = req.params.id;
-  const longURL = req.body.updatedlongURL;
-  urlDatabase[shortURL].longURL = longURL;
-  res.redirect("/urls");
+  const user = users[req.session.user_id];
+  if (user) {
+    const shortURL = req.params.id;
+    const longURL = req.body.updatedlongURL;
+    urlDatabase[shortURL].longURL = longURL;
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 // Redirecting the generated shortUrl to it's corresponsding longUrl
@@ -149,11 +158,14 @@ app.get("/u/:id", (req, res) => {
 
 // Deleting Urls
 app.post("/urls/:id/delete", (req, res) => {
-  let shortURL = req.params.id;
-  delete urlDatabase[shortURL];
-  console.log("check1", shortURL);
-  console.log("check2", urlDatabase[shortURL]);
-  res.redirect("/urls");
+  const user = users[req.session.user_id];
+  if (user) {
+    let shortURL = req.params.id;
+    delete urlDatabase[shortURL];
+    res.redirect("/urls");
+  } else {
+    return res.status(400).send("No access");
+  }
 });
 
 // Set up an event handler to show that we are listening
